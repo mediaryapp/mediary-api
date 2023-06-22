@@ -1,10 +1,7 @@
-﻿using System.Security.Claims;
-using Infrastructure.Common;
+﻿using Infrastructure.Common;
 using Infrastructure.Common.Extensions;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,8 +30,11 @@ public class IdentityService : IIdentityService
     {
         var user = await _userManager.FindByEmailAsync("administrator@localhost");
         var userC = await _signInManager.CreateUserPrincipalAsync(user);
-        await _signInManager.SignInAsync(user, isPersistent: false);
-        //var result = await _signInManager.PasswordSignInAsync(user, "Administrator1!", true, false);
+        
+        // TODO: difference between SignInAsync and PasswordSignInAsync????
+        await _signInManager.SignInAsync(user, isPersistent: false, CookieAuthenticationDefaults.AuthenticationScheme);
+        // TODO: change the return to return (result.ToApplicationResult());
+        // var result = await _signInManager.PasswordSignInAsync(user, "Administrator1!", true, false);
         //return (result.ToApplicationResult());
     }
     
@@ -61,6 +61,7 @@ public class IdentityService : IIdentityService
         return user != null && await _userManager.IsInRoleAsync(user, role);
     }
 
+    // TODO: WRF is this method. If it is object ownership granting, leave it here
     public async Task<bool> AuthorizeAsync(string userId, string policyName)
     {
         var user = _userManager.Users.SingleOrDefault(u => u.Id == userId);

@@ -5,6 +5,7 @@ using Infrastructure.Persistence;
 using Infrastructure.Persistence.Interceptors;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -58,52 +59,80 @@ public static class ConfigureServices
         // });
 
         services
-            .AddIdentity<ApplicationUser, IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationDbContext>();
-        // .AddDefaultTokenProviders(); // TODO: wtf
+            // .AddIdentity<ApplicationUser, IdentityRole>()
+            .AddIdentityCore<ApplicationUser>()
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddSignInManager()
+        .AddDefaultTokenProviders(); // TODO: wtf
 
-        // TODO: Wtf
-        services.AddIdentityServer()
-            .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+        // TODO: Wtf is identity service
+        // services.AddIdentityServer()
+        //     .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
         services.AddTransient<IDateTime, DateTimeService>();
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddTransient<IIdentityService, IdentityService>();
+        
+        // TODO: MAY BE NOT NEEDED
+        // var cookiePolicyOptions = new CookiePolicyOptions
+        // {
+        //     MinimumSameSitePolicy = SameSiteMode.Strict,
+        // };
 
         // TODO: Remove JWT
-        // services.AddAuthentication()
+        // services.AddAuthentication();
         //     .AddIdentityServerJwt();
 
         // TODO: Cookie? WTF is IdentityCookie vs Cookie + what happens when I remove "CookieAuthenticationDefaults.AuthenticationScheme"
-        services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, o =>
+        // services.AddAuthentication()
+        //     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, o =>
+        //     {
+        //         o.LoginPath = "/api/account";
+        //         o.AccessDeniedPath = string.Empty;
+        //         o.Events.OnRedirectToLogin = context =>
+        //         {
+        //             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        //             return Task.FromResult<object>(null);
+        //         };
+        //         o.Events.OnRedirectToAccessDenied = context =>
+        //         {
+        //             context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        //             return Task.FromResult<object>(null);
+        //         };
+        //         o.Events.OnRedirectToReturnUrl = context =>
+        //         {
+        //             context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        //             return Task.FromResult<object>(null);
+        //         };
+        //         // TODO: Cookie options
+        //         // o.Cookie.HttpOnly = true;
+        //         o.Cookie.Name = "testCookie";
+        //         // o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        //         // o.SlidingExpiration = true;
+        //     });
+
+        services.AddAuthentication(o =>
+        {
+            o.DefaultScheme = IdentityConstants.ApplicationScheme;
+        }).AddIdentityCookies(o =>
+        {
+            o.ApplicationCookie.Configure(o =>
             {
+                o.Cookie.Name = "testC";
                 o.LoginPath = string.Empty;
-                o.AccessDeniedPath = string.Empty;
                 o.Events.OnRedirectToLogin = context =>
                 {
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     return Task.FromResult<object>(null);
                 };
-                o.Events.OnRedirectToAccessDenied = context =>
-                {
-                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                    return Task.FromResult<object>(null);
-                };
-                o.Events.OnRedirectToReturnUrl = context =>
-                {
-                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                    return Task.FromResult<object>(null);
-                };
-                // TODO: Cookie options
-                o.Cookie.HttpOnly = true;
-                o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                o.SlidingExpiration = true;
             });
+        });
 
-        services.AddAuthorization(options =>
-            options.AddPolicy("CanPurge", policy => policy.RequireRole("Administrator")));
+        services.AddAuthorization();
+        // services.AddAuthorization(options =>
+        //     options.AddPolicy("CanPurge", policy => policy.RequireRole("Administrator")));
 
         return services;
     }
