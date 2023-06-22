@@ -84,10 +84,19 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+
 app.UseAuthentication();
-app.UseIdentityServer();
+// app.UseIdentityServer();
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseCookiePolicy();
+
+// app.MapControllers();
+
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
 
 app.Run();
