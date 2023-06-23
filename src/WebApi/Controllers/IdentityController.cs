@@ -1,12 +1,7 @@
 ﻿using Infrastructure.Common;
-using Infrastructure.Identity;
-using Infrastructure.Persistence;
-using Infrastructure.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
-[ApiVersion("1.0")]
 
 [Route("api/account")]
 public class IdentityController : ApiControllerBase

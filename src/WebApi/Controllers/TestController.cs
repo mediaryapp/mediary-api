@@ -1,14 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Client.AuthScheme;
 
 namespace WebApi.Controllers;
 
-[ApiController]
-
 [Route("/api/test")]
-public class TestController: ControllerBase
+public class TestController : ApiControllerBase
 {
     [HttpGet]
     [Route("get-in")]
@@ -17,7 +13,7 @@ public class TestController: ControllerBase
     {
         return Ok("ok");
     }
-    
+
     [HttpGet]
     [Route("get-out")]
     public ActionResult<string> GetOut()
