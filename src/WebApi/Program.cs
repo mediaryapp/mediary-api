@@ -1,5 +1,6 @@
 using Infrastructure;
 using Infrastructure.Persistence;
+using Microsoft.OpenApi.Models;
 using WebApi;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
-builder.Services.AddWebUIServices();
+builder.Services.AddWebApiServices();
 
 // TODO: REMOVE CORS!!!!
 builder.Services.AddCors(options =>
@@ -19,7 +20,6 @@ builder.Services.AddCors(options =>
         policyBuilder.AllowAnyMethod();
     });
 });
-
 
 var app = builder.Build();
 
@@ -41,7 +41,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "mediary api v1");
+        options.DocumentTitle = "mediary swagger";
         options.RoutePrefix = string.Empty;
     });
 }

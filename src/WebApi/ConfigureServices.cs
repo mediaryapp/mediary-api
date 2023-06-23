@@ -7,7 +7,7 @@ namespace WebApi;
 
 public static class ConfigureServices
 {
-    public static IServiceCollection AddWebUIServices(this IServiceCollection services)
+    public static IServiceCollection AddWebApiServices(this IServiceCollection services)
     {
         services.AddDatabaseDeveloperPageExceptionFilter();
         
@@ -16,12 +16,18 @@ public static class ConfigureServices
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>();
         
-        services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });                
-        });
-
         services.AddControllers();
+        
+        // Add swagger 
+        services.AddSwaggerGen(options =>
+        {
+            options.EnableAnnotations();
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Version = "v1",
+                Title = "mediary api",
+            });
+        });
         
         services.AddScoped<FluentValidationSchemaProcessor>(provider =>
         {
