@@ -1,6 +1,5 @@
 using Infrastructure;
 using Infrastructure.Persistence;
-using Microsoft.OpenApi.Models;
 using WebApi;
 
 var builder = WebApplication.CreateBuilder(args);
