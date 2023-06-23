@@ -1,5 +1,4 @@
-﻿using Infrastructure.Common;
-using Infrastructure.Common.Interfaces;
+﻿using Infrastructure.Common.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
@@ -8,7 +7,7 @@ namespace WebApi.Controllers;
 public class IdentityController : ApiControllerBase
 {
     private readonly IIdentityService _identityService;
-    
+
     public IdentityController(IIdentityService identityService)
     {
         _identityService = identityService;
