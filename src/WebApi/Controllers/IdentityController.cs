@@ -21,7 +21,7 @@ public class IdentityController : ApiControllerBase
     [HttpPost]
     public async Task<ActionResult<string>> Login()
     {
-        await _identityService.Login();
+        await _identityService.SignIn();
         return Ok("ok");
     }
 }

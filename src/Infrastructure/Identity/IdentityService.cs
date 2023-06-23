@@ -25,7 +25,7 @@ public class IdentityService : IIdentityService
         _signInManager = signInManager;
     }
 
-    public async Task<Result> Login()
+    public async Task<Result> SignIn()
     {
         var user = await _userManager.FindByEmailAsync("administrator@localhost");
         var userClaims = await _signInManager.CreateUserPrincipalAsync(user);
