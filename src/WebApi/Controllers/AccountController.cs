@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace WebApi.Controllers;
 
 [Route("api/account")]
-public class IdentityController : ApiControllerBase
+public class AccountController : ApiControllerBase
 {
     private readonly IIdentityService _identityService;
 
-    public IdentityController(IIdentityService identityService)
+    public AccountController(IIdentityService identityService)
     {
         _identityService = identityService;
     }
