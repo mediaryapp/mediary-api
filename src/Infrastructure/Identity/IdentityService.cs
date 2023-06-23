@@ -1,6 +1,7 @@
 ﻿using Infrastructure.Common;
 using Infrastructure.Common.Extensions;
 using Infrastructure.Common.Interfaces;
+using Infrastructure.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,11 @@ public class IdentityService : IIdentityService
     public async Task<Result> SignIn()
     {
         var user = await _userManager.FindByEmailAsync("administrator@localhost");
+        if (user == null)
+        {
+            throw new NotFoundException("not found");
+        }
+        
         var userClaims = await _signInManager.CreateUserPrincipalAsync(user);
 
         // TODO: difference between SignInAsync and PasswordSignInAsync????
