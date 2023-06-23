@@ -1,6 +1,5 @@
 ﻿using Infrastructure.Common;
 using Infrastructure.Common.Extensions;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -26,18 +25,18 @@ public class IdentityService : IIdentityService
         _signInManager = signInManager;
     }
 
-    public async Task Login()
+    public async Task<Result> Login()
     {
         var user = await _userManager.FindByEmailAsync("administrator@localhost");
-        var userC = await _signInManager.CreateUserPrincipalAsync(user);
-        
+        var userClaims = await _signInManager.CreateUserPrincipalAsync(user);
+
         // TODO: difference between SignInAsync and PasswordSignInAsync????
-        await _signInManager.SignInAsync(user, isPersistent: false, CookieAuthenticationDefaults.AuthenticationScheme);
+        //await _signInManager.SignInAsync(user, isPersistent: false, CookieAuthenticationDefaults.AuthenticationScheme);
         // TODO: change the return to return (result.ToApplicationResult());
-        // var result = await _signInManager.PasswordSignInAsync(user, "Administrator1!", true, false);
-        //return (result.ToApplicationResult());
+        var result = await _signInManager.PasswordSignInAsync(user, "Administrator1!", true, false);
+        return (result.ToApplicationResult());
     }
-    
+
     public async Task<string?> GetUserNameAsync(string userId)
     {
         var user = await _userManager.Users.FirstAsync(u => u.Id == userId);
@@ -61,7 +60,7 @@ public class IdentityService : IIdentityService
         return user != null && await _userManager.IsInRoleAsync(user, role);
     }
 
-    // TODO: WRF is this method. If it is object ownership granting, leave it here
+    // TODO: Wtf is this method. If it is object ownership granting, tell me ill move it somewhere...
     public async Task<bool> AuthorizeAsync(string userId, string policyName)
     {
         var user = _userManager.Users.SingleOrDefault(u => u.Id == userId);

@@ -20,7 +20,7 @@ public class CurrentUserService : ICurrentUserService
     // This is a better option when you want to maintain a state within a request.
     public string? UserId
     {
-        get => "asdf";
+        get => "no user :(";
         set { throw new NotImplementedException(); }
     }
 }

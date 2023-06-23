@@ -1,8 +1,5 @@
 using Infrastructure;
 using Infrastructure.Persistence;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.Extensions.Options;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using WebApi;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,14 +21,6 @@ builder.Services.AddCors(options =>
 });
 
 
-// builder.Services.AddEndpointsApiExplorer();
-// builder.Services.AddVersionedApiExplorer( options => options.GroupNameFormat = "'v'VVV" );
-// builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
-// builder.Services.AddSwaggerGen(options =>
-// {
-//     options.EnableAnnotations();
-// });
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -39,7 +28,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseMigrationsEndPoint();
-    
+
     // Initialise and seed database
     using (var scope = app.Services.CreateScope())
     {
@@ -47,27 +36,14 @@ if (app.Environment.IsDevelopment())
         await initializer.InitialiseAsync();
         await initializer.SeedAsync();
     }
+
+    // Use swagger
     app.UseSwagger();
-    // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
-    // specifying the Swagger JSON endpoint.
-    app.UseSwaggerUI(c =>
+    app.UseSwaggerUI(options =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        options.RoutePrefix = string.Empty;
     });
-    // app.UseSwagger();
-    // app.UseSwaggerUI(options =>
-    // {
-    //     var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>(); 
-    //     foreach ( var description in provider.ApiVersionDescriptions )
-    //     {
-    //         options.SwaggerEndpoint(
-    //             $"/swagger/{description.GroupName}/swagger.json",
-    //             description.GroupName.ToUpperInvariant() 
-    //         );
-    //     }
-    //     // serve from root
-    //     options.RoutePrefix = string.Empty;
-    // });
 }
 else
 {
@@ -75,7 +51,7 @@ else
     app.UseHsts();
 }
 
-// TODO: REMOVE CORS!!!!
+// TODO: Remove cors
 app.UseCors("CorsAllowAll");
 
 
@@ -86,17 +62,14 @@ app.UseRouting();
 
 
 app.UseAuthentication();
+// TODO: Identity server
 // app.UseIdentityServer();
 app.UseAuthorization();
 
+// TODO: I don't know
 app.UseCookiePolicy();
 
-// app.MapControllers();
+app.MapControllers();
 
-
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
 
 app.Run();

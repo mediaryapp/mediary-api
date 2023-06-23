@@ -2,7 +2,7 @@
 
 public interface IIdentityService
 {
-    Task Login();
+    Task<Result> Login();
 
     Task<string?> GetUserNameAsync(string userId);
 

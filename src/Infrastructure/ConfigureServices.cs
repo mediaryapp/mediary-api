@@ -4,8 +4,6 @@ using Infrastructure.Identity;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Interceptors;
 using Infrastructure.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +17,7 @@ public static class ConfigureServices
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services,
         IConfiguration configuration)
     {
+        // Add Database connections
         services.AddScoped<AuditableEntitySaveChangesInterceptor>();
 
         if (configuration.GetValue<bool>("UseInMemoryDatabase"))
@@ -34,9 +33,28 @@ public static class ConfigureServices
         }
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
-
         services.AddScoped<ApplicationDbContextInitializer>();
+        
+        
+        // Add services
+        services.AddTransient<IDateTime, DateTimeService>();
 
+
+        // Add auth options
+        // TODO: Difference between AddIdentity and AddIdentityCore and AddDefaultIdentity
+        services
+            // .AddIdentity<ApplicationUser, IdentityRole>()
+            .AddIdentityCore<ApplicationUser>()
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddSignInManager()
+            .AddDefaultTokenProviders(); // TODO: wtf
+
+        // TODO: Wtf is identity service (to turn it on also add app.UseIdentityServer(); in Program.cs)
+        // services.AddIdentityServer()
+        //     .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+
+        
         // TODO: Add options
         // services.Configure<IdentityOptions>(options =>
         // {
@@ -57,21 +75,7 @@ public static class ConfigureServices
         //     options.User.RequireUniqueEmail = true;
         //     options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
         // });
-
-        services
-            // .AddIdentity<ApplicationUser, IdentityRole>()
-            .AddIdentityCore<ApplicationUser>()
-            .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddSignInManager()
-        .AddDefaultTokenProviders(); // TODO: wtf
-
-        // TODO: Wtf is identity service
-        // services.AddIdentityServer()
-        //     .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
-
-        services.AddTransient<IDateTime, DateTimeService>();
-
+        
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddTransient<IIdentityService, IdentityService>();
         
@@ -86,6 +90,7 @@ public static class ConfigureServices
         //     .AddIdentityServerJwt();
 
         // TODO: Cookie? WTF is IdentityCookie vs Cookie + what happens when I remove "CookieAuthenticationDefaults.AuthenticationScheme"
+        // NOTE: Identity cookie auth variant below
         // services.AddAuthentication()
         //     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, o =>
         //     {
@@ -106,7 +111,6 @@ public static class ConfigureServices
         //             context.Response.StatusCode = StatusCodes.Status403Forbidden;
         //             return Task.FromResult<object>(null);
         //         };
-        //         // TODO: Cookie options
         //         // o.Cookie.HttpOnly = true;
         //         o.Cookie.Name = "testCookie";
         //         // o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
@@ -116,23 +120,32 @@ public static class ConfigureServices
         services.AddAuthentication(o =>
         {
             o.DefaultScheme = IdentityConstants.ApplicationScheme;
-        }).AddIdentityCookies(o =>
+        }).AddIdentityCookies(cookiesBuilder =>
         {
-            o.ApplicationCookie.Configure(o =>
+            cookiesBuilder.ApplicationCookie?.Configure(options =>
             {
-                o.Cookie.Name = "testC";
-                o.LoginPath = string.Empty;
-                o.Events.OnRedirectToLogin = context =>
+                // TODO: Cookie options
+                options.Cookie.Name = "testCookie";
+                
+                // Rewrite default redirects
+                options.LoginPath = string.Empty;
+                options.AccessDeniedPath = string.Empty;
+                options.Events.OnRedirectToLogin = context =>
                 {
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    return Task.FromResult<object>(null);
+                    return Task.CompletedTask;                
+                };
+                options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    return Task.CompletedTask;                
                 };
             });
         });
 
-        services.AddAuthorization();
-        // services.AddAuthorization(options =>
-        //     options.AddPolicy("CanPurge", policy => policy.RequireRole("Administrator")));
+        // TODO: I don't know wtf is this
+        services.AddAuthorization(options =>
+            options.AddPolicy("CanPurge", policy => policy.RequireRole("Administrator")));
 
         return services;
     }
