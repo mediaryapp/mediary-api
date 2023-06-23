@@ -1,5 +1,6 @@
 ﻿using Infrastructure.Common;
 using Infrastructure.Common.Extensions;
+using Infrastructure.Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,5 @@
 ﻿using Infrastructure.Common;
+using Infrastructure.Common.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
