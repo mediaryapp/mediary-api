@@ -25,17 +25,14 @@ public class IdentityService : IIdentityService
         _signInManager = signInManager;
     }
 
-    public void test()
-    {
-        
-    }
-
     public async Task<Result> SignIn()
     {
         var user = await _userManager.FindByEmailAsync("administrator@localhost");
         var userClaims = await _signInManager.CreateUserPrincipalAsync(user);
+
         // TODO: difference between SignInAsync and PasswordSignInAsync????
         //await _signInManager.SignInAsync(user, isPersistent: false, CookieAuthenticationDefaults.AuthenticationScheme);
+        // TODO: change the return to return (result.ToApplicationResult());
         var result = await _signInManager.PasswordSignInAsync(user, "Administrator1!", true, false);
         return (result.ToApplicationResult());
     }
